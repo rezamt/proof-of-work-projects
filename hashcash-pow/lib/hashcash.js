@@ -5,7 +5,7 @@
     var TIME = 1;
     var SIGNATURE = 2;
     var HashCash = {};
-    var COMPLEXITY = 3; // Number of 0 leading
+    var COMPLEXITY = 4; // Number of 0 leading
     var SECRET = "I am a secret";
 
 
