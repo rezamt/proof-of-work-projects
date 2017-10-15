@@ -5,6 +5,7 @@
     var TIME = 1;
     var SIGNATURE = 2;
     var HashCash = {};
+    var COMPLEXITY = 3; // Number of 0 leading
     var SECRET = "I am a secret";
 
 
@@ -31,7 +32,7 @@
     }
 
     function getChallenge(id, url) {
-        var time = new Date().getTime().toString(16);
+        var time = getCurrentTime();
         var rand = randomHex(10000000000);
         var challenge = rand + ':' + time + ':' + id + ':' + encodeURIComponent(url);
         challenge = challenge + ':' + sign(challenge);
@@ -53,14 +54,27 @@
         return parseInt(split[TIME], 16);
     };
 
+    function getCurrentTime() {
+       return new Date().getTime().toString(16);
+    }
+
+    function isTokenExpired(challenge) {
+        let tkTime = new Date(parseInt(getTimeFrom(challenge), 16)).getTime();
+        let cuTime = new Date().getTime();
+
+        ((tkTime + MINUTE) > cuTime) || console.log('Client Token is Expired (Token TTL is 1 MINUTE)');
+
+        return (tkTime + MINUTE > cuTime);
+    }
+
     function solveChallenge(challenge) {
-        console.log('solveChallenge => ', challenge);
+        console.log('Server x-hashcash challenge => ', challenge);
 
         var randomNumber = getRandomFrom(challenge);
         randomNumber += 1;
         while (true) {
             if (isSolution(challenge, randomNumber)) {
-                console.log('solution found => ', randomNumber);
+                console.log('Client PoW Hash: ' + hash(unsignedChallenge(challenge) + randomNumber) + ' -  x-hashcash-solution is: ' + randomNumber  + ' ITR.');
                 return randomNumber;
             }
 
@@ -71,7 +85,7 @@
     function isSolution(challenge, nonce) {
         var answer = hash(unsignedChallenge(challenge) + nonce);
         // return checkSignature(challenge) && answer.slice(0, 4) === '0000';
-        return checkSignature(challenge) && answer.slice(0, 5) === '00000';
+        return checkSignature(challenge) && answer.slice(0, COMPLEXITY) === Array(COMPLEXITY + 1).join('0');
     };
 
     function HashCashMiddleWare() {
@@ -79,19 +93,29 @@
         return function (req, res, next) {
             var url = req.url;
             var address = req.connection.remoteAddress;
-            var challenge = req.session['x-hashcash'] || getChallenge(address, url);
+            var challenge = req.headers['x-hashcash'] || getChallenge(address, url);
             var solution = req.headers['x-hashcash-solution'];
-            if (solution && isSolution(challenge, solution)) {
+            if (solution && isTokenExpired(challenge) && isSolution(challenge, solution)) {
+                console.log('Successfully verified client solution for: ', JSON.stringify({ 'x-hashcash': challenge, 'x-hashcash-solution': solution}));
                 next();
             } else {
                 console.log('Sending challenge: ', challenge);
+                console.log(getRemoteAddress(req));
                 res.header('x-hashcash', challenge);
                 req.session['x-hashcash'] = challenge;
-                res.send('Answer challenge', 400);
+                res.header('Content-Type' , 'application/json' );
+                res.send(JSON.stringify({'x-hashcash': challenge}), 400);
             }
         };
 
     };
+
+    function getRemoteAddress(req) {
+        return req.headers['x-forwarded-for'] || 
+                 req.connection.remoteAddress || 
+                 req.socket.remoteAddress ||
+                 req.connection.socket.remoteAddress;
+    }
 
     // Establish the root object, `window` in the browser, or `global` on the server.
     var root = this;

@@ -16,7 +16,7 @@
                 url: '/protected',
                 success: function (responseText) {
                     var time = new Date().getTime() - start;
-                    msg.innerHTML = 'Server Says: ' + responseText + ' took ' + time + 'ms';
+                    msg.innerHTML = '<b>Server Says: ' + responseText + ' - PoW  Time: ' + time + 'ms </b>';
                 }
             });
         });
