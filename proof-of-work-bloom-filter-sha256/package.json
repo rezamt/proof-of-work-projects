@@ -1,0 +1,46 @@
+{
+  "name": "proof-of-work-bloom-filter-sha256",
+  "version": "3.1.0",
+  "description": "SHA256 + Bloom filter proof of work",
+  "main": "lib/pow.js",
+  "bin": {
+    "proof-of-work": "bin/proof-of-work"
+  },
+  "files": [
+    "lib",
+    "bin"
+  ],
+  "scripts": {
+    "test": "npm run test-node && npm run test-browser && npm run lint",
+    "test-node": "mocha --reporter=spec test/*-test.js",
+    "test-browser": "TEST_ENV=browser mocha --reporter=spec test/*-test.js",
+    "lint": "eslint lib/*.js lib/**/*.js lib/**/**/*.js test/*.js"
+  },
+  "repository": {
+    "type": "git",
+  },
+  "keywords": [
+    "proof",
+    "of",
+    "work",
+    "sha256",
+    "bloom"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/indutny/proof-of-work/issues"
+  },
+  "homepage": "https://github.com/indutny/proof-of-work#readme",
+  "devDependencies": {
+    "benchmark": "^2.1.4",
+    "eslint": "^4.0.0",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "hash.js": "^1.1.0",
+    "minimalistic-assert": "^1.0.0"
+  },
+  "browser": {
+    "./lib/pow/utils/index.js": "./lib/pow/utils/browser.js"
+  }
+}

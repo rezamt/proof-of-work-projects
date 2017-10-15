@@ -1,0 +1,20 @@
+{
+  "name": "hashcash",
+  "version": "0.5.1",
+  "description": "HashCash protocol for Node",
+  "author": [
+    ""
+  ],
+  "main": "./lib/hashcash",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "restler": "~3.2.0"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "devDependencies": {
+    "express": "3.x.x"
+  },
+  "engine": "node 0.8.x"
+}
