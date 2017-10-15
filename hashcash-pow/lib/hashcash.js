@@ -59,12 +59,19 @@
     }
 
     function isTokenExpired(challenge) {
-        let tkTime = new Date(parseInt(getTimeFrom(challenge), 16)).getTime();
+        let tkTime = new Date(getTimeFrom(challenge)).getTime();
         let cuTime = new Date().getTime();
 
-        ((tkTime + MINUTE) > cuTime) || console.log('Client Token is Expired (Token TTL is 1 MINUTE)');
+        console.log('Token Time: ', (tkTime + MINUTE));
+        console.log('Current Time: ', cuTime);
+        console.log('Time Diff: ', cuTime - (tkTime + MINUTE));
+        
+        if (cuTime - (tkTime + MINUTE) > 0) {
+            console.log('Client Token is Expired (Token TTL is 1 MINUTE)');
+            return false;
+        } 
 
-        return (tkTime + MINUTE > cuTime);
+        return true;
     }
 
     function solveChallenge(challenge) {
